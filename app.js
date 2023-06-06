@@ -40,8 +40,7 @@ const hasPriorityAndStatusProperties = (requestQuery) => {
 };
 
 const hasPriorityProperty = (requestQuery) => {
-  return;
-  requestQuery.priority !== undefined;
+  return requestQuery.priority !== undefined;
 };
 
 const hasStatusProperty = (requestQuery) => {
@@ -60,7 +59,7 @@ app.get("/todos/", async (request, response) => {
             FROM 
               todo
             WHERE
-              todo LIKE '%${search}%'
+              todo LIKE '%${search_q}%'
               AND status ='${status}'
               AND priority ='${priority}';`;
       break;
@@ -90,7 +89,7 @@ app.get("/todos/", async (request, response) => {
             WHERE 
              todo LIKE '%${search_q}%';`;
   }
-  data = await data.all(getTodosQuery);
+  data = await database.all(getTodosQuery);
   response.send(data);
 });
 app.get("/todos/:todoId/", async (request, response) => {
@@ -110,7 +109,7 @@ app.post("/todos/", async (request, response) => {
   const { id, todo, priority, status } = request.body;
   const postTodoQuery = `
     INSERT INTO
-     todo (id .todo,priority,status)
+     todo (id ,todo,priority,status)
      VALUES 
      (${id},'${todo}','${priority}','${status}');`;
   await database.run(postTodoQuery);
@@ -122,13 +121,13 @@ app.put("/todos/:todoId/", async (request, response) => {
   let updateColumn = "";
   const requestBody = request.body;
   switch (true) {
-    case requestBody.status === undefined:
+    case requestBody.status !== undefined:
       updateColumn = "Status";
       break;
-    case requestBody.priority === undefined:
+    case requestBody.priority !== undefined:
       updateColumn = "Priority";
       break;
-    case requestBody.todo === undefined:
+    case requestBody.todo !== undefined:
       updateColumn = "Todo";
       break;
   }
